@@ -23,10 +23,9 @@ jobs:
         run: |
           # Compress the Flask app
           mkdir temp-archive
-          tar --exclude='./temp-archive' --exclude='./.github' -czfv temp-archive/flask-app.tar.gz .
-
+          tar --exclude='./flask-app.tar.gz' --exclude='./.github' -czfv flask-app.tar.gz .
           # Copy the app to the EC2 instance
-          scp -o StrictHostKeyChecking=no temp-archive/flask-app.tar.gz ec2-user@${{ secrets.EC2_PUBLIC_IP }}:~/
+          scp -o StrictHostKeyChecking=no flask-app.tar.gz ec2-user@${{ secrets.EC2_PUBLIC_IP }}:~/
 
       - name: Deploy Flask App on EC2
         run: |
