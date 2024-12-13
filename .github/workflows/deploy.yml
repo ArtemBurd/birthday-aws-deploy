@@ -33,10 +33,10 @@ jobs:
             pkill -f app.py || true
 
             # Deploy the new version
-            tar -xvfz flask-app.tar.gz
-
+            tar -xzvf flask-app.tar.gz
+            rm -f flask-app.tar.gz
             # Install/Update dependencies
-            pip3 install --upgrade pip3
+            pip3 install --upgrade pip
             pip3 install -r requirements.txt
 
             # Start the Flask app
