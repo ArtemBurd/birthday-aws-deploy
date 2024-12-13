@@ -22,8 +22,7 @@ jobs:
       - name: Upload Flask Code to EC2
         run: |
           # Compress the Flask app
-          mkdir temp-archive
-          tar --exclude='./flask-app.tar.gz' --exclude='./.github' -czfv flask-app.tar.gz .
+          tar -cvzf flask-app.tar.gz server.py requiremets.py
           # Copy the app to the EC2 instance
           scp -o StrictHostKeyChecking=no flask-app.tar.gz ec2-user@${{ secrets.EC2_PUBLIC_IP }}:~/
 
@@ -34,8 +33,7 @@ jobs:
             pkill -f app.py || true
 
             # Deploy the new version
-            tar -xzf flask-app.tar.gz -C ~
-            cd ~
+            tar -xvfz flask-app.tar.gz
 
             # Install/Update dependencies
             pip3 install --upgrade pip3
