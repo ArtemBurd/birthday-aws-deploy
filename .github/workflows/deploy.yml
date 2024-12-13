@@ -22,7 +22,7 @@ jobs:
       - name: Upload Flask Code to EC2
         run: |
           # Compress the Flask app
-          tar -cvzf flask-app.tar.gz server.py requiremets.py
+          tar -cvzf flask-app.tar.gz server.py requirements.txt
           # Copy the app to the EC2 instance
           scp -o StrictHostKeyChecking=no flask-app.tar.gz ec2-user@${{ secrets.EC2_PUBLIC_IP }}:~/
 
