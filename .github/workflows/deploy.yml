@@ -1,0 +1,50 @@
+name: Continuous Delivery
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set Up SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+      - name: Upload Flask Code to EC2
+        run: |
+          # Compress the Flask app
+          tar --exclude=flask-app.tar.gz --exclude='./.github' -czf flask-app.tar.gz .
+
+          # Copy the app to the EC2 instance
+          scp -o StrictHostKeyChecking=no flask-app.tar.gz ec2-user@${{ secrets.EC2_PUBLIC_IP }}:~/
+
+      - name: Deploy Flask App on EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
+            # Stop any existing Flask app
+            pkill -f app.py || true
+
+            # Deploy the new version
+            tar -xzf flask-app.tar.gz -C ~
+            cd ~
+
+            # Install/Update dependencies
+            pip3 install --upgrade pip3
+            pip3 install -r requirements.txt
+
+            # Start the Flask app
+            nohup python3 server.py > flask.log 2>&1 &
+          EOF
+
+      - name: Delete SSH Key
+        run: |
+          rm -f ~/.ssh/id_rsa
