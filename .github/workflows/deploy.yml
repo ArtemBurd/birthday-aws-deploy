@@ -30,7 +30,7 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
             # Stop any existing Flask app
-            pkill -f app.py || true
+            pkill -f server.py || true
 
             # Deploy the new version
             tar -xzvf flask-app.tar.gz
