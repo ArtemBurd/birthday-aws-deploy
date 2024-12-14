@@ -6,12 +6,32 @@ on:
       - main
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set Up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+
+      - name: Install Dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Tests
+        run: pytest tests.py
+
   deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set Up SSH Key
         run: |
@@ -21,25 +41,20 @@ jobs:
 
       - name: Upload Flask Code to EC2
         run: |
-          # Compress the Flask app
-          tar -cvzf flask-app.tar.gz server.py requirements.txt
-          # Copy the app to the EC2 instance
+          tar -czf flask-app.tar.gz server.py requirements.txt
           scp -o StrictHostKeyChecking=no flask-app.tar.gz ec2-user@${{ secrets.EC2_PUBLIC_IP }}:~/
 
       - name: Deploy Flask App on EC2
         run: |
           ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
-            # Stop any existing Flask app
             pkill -f server.py || true
 
-            # Deploy the new version
-            tar -xzvf flask-app.tar.gz
+            tar -xzf flask-app.tar.gz
             rm -f flask-app.tar.gz
-            # Install/Update dependencies
+
             pip3 install --upgrade pip
             pip3 install -r requirements.txt
 
-            # Start the Flask app
             nohup python3 server.py > flask.log 2>&1 &
           EOF
 
