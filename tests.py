@@ -16,17 +16,17 @@ def test_health_check(client):
 def test_get_next_bday(client):
     today = datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)
     
-    response1 = client.post("/when", json={"birthday": str(today)})
+    response1 = client.post("/when", json={"birthday": today.strftime("%Y-%m-%d")})
     assert response1.status_code == 200
     assert response1.json["Days until next birthday"] == 0
     
     date2 = today + timedelta(days=1)
-    response2 = client.post("/when", json={"birthday": str(date2)})
+    response2 = client.post("/when", json={"birthday": date2.strftime("%Y-%m-%d")})
     assert response2.status_code == 200
     assert response2.json["Days until next birthday"] == 1
     
     date3 = today + timedelta(days=364)
-    response3 = client.post("/when", json={"birthday": str(date3)})
+    response3 = client.post("/when", json={"birthday": date3.strftime("%Y-%m-%d")})
     assert response3.status_code == 200
     assert response3.json["Days until next birthday"] == 364
     
