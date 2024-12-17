@@ -30,7 +30,7 @@ def days_until_birthday(birthday_str):
 def health_check():
     return "The light inside has broken but i still work", 200
 
-"""
+
 @app.route("/when", methods = ["POST"])
 def get_next_bday():
     birthday_str = request.get_json().get("birthday")
@@ -53,7 +53,7 @@ def get_next_friend_bday(id):
     days_left = days_until_birthday(birthday_str)
     friend["Days until next birthday"] = days_left
     return jsonify(friend), 200
-"""
+
 
 # READ all
 @app.route('/friends', methods=['GET'])
